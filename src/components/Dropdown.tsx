@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, AlertCircle, Check } from 'lucide-react';
 
@@ -14,6 +14,8 @@ interface DropdownProps {
   onChange: (value: string) => void;
   error?: string;
   placeholder?: string;
+  isOpen: boolean;
+  setIsOpen: (open: boolean) => void;
 }
 
 const Dropdown: React.FC<DropdownProps> = ({
@@ -23,14 +25,13 @@ const Dropdown: React.FC<DropdownProps> = ({
   onChange,
   error,
   placeholder = 'Select an option',
+  isOpen,
+  setIsOpen,
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-
   const selectedOption = options.find(option => option.value === value);
   const hasValue = !!selectedOption;
 
-  // Close dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -39,7 +40,7 @@ const Dropdown: React.FC<DropdownProps> = ({
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  }, [setIsOpen]);
 
   const handleOptionSelect = (optionValue: string) => {
     onChange(optionValue);
@@ -47,13 +48,12 @@ const Dropdown: React.FC<DropdownProps> = ({
   };
 
   return (
-    <div className="relative" ref={dropdownRef}>
-      {/* Label */}
+    <div className="relative z-[100]" ref={dropdownRef}>
+
       <label className="absolute top-1 left-4 text-xs text-white/70 z-10 pointer-events-none">
         {label}
       </label>
 
-      {/* Dropdown Box */}
       <motion.div
         onClick={() => setIsOpen(!isOpen)}
         className={`w-full mt-5 px-4 py-3 bg-white/10 dark:bg-white/5 border-2 rounded-xl backdrop-blur-sm text-white cursor-pointer transition-all duration-300 ${
@@ -74,7 +74,6 @@ const Dropdown: React.FC<DropdownProps> = ({
         </div>
       </motion.div>
 
-      {/* Dropdown List */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -82,7 +81,7 @@ const Dropdown: React.FC<DropdownProps> = ({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -10, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="absolute top-full left-0 right-0 mt-2 bg-white/20 dark:bg-white/10 backdrop-blur-lg rounded-xl border border-white/20 shadow-2xl z-50 max-h-60 overflow-y-auto"
+className="absolute top-full left-0 right-0 mt-2 bg-black/90 rounded-xl border border-white/20 shadow-xl z-[999] max-h-60 overflow-y-auto backdrop-blur-md"
           >
             {options.map((option, index) => (
               <motion.div
@@ -114,7 +113,6 @@ const Dropdown: React.FC<DropdownProps> = ({
         )}
       </AnimatePresence>
 
-      {/* Error Message */}
       <AnimatePresence>
         {error && (
           <motion.div
