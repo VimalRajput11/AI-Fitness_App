@@ -7,6 +7,7 @@ import Dropdown from './Dropdown';
 interface FitnessData {
   weight: string;
   height: string;
+  heightUnit: string;
   activityLevel: string;
   language: string;
 }
@@ -20,6 +21,7 @@ const FitnessForm: React.FC<FitnessFormProps> = ({ onSubmit, isCalculating }) =>
   const [formData, setFormData] = useState<FitnessData>({
     weight: '',
     height: '',
+    heightUnit: 'cm',
     activityLevel: '',
     language: 'English',
   });
@@ -37,6 +39,12 @@ const FitnessForm: React.FC<FitnessFormProps> = ({ onSubmit, isCalculating }) =>
   const languages = [
     { value: 'English', label: 'English' },
     { value: 'Hindi', label: 'हिंदी (Hindi)' },
+  ];
+
+  const heightUnits = [
+    { value: 'cm', label: 'cm' },
+    { value: 'ft', label: 'ft' },
+    { value: 'inch', label: 'inch' },
   ];
 
   const validateForm = (): boolean => {
@@ -75,7 +83,6 @@ const FitnessForm: React.FC<FitnessFormProps> = ({ onSubmit, isCalculating }) =>
       transition={{ duration: 0.6, type: "spring", stiffness: 100 }}
       className="bg-white/10 dark:bg-white/5 backdrop-blur-lg rounded-3xl p-8 shadow-2xl border border-white/20"
     >
-      {/* Header */}
       <motion.div 
         className="text-center mb-8"
         initial={{ opacity: 0, y: -20 }}
@@ -89,7 +96,6 @@ const FitnessForm: React.FC<FitnessFormProps> = ({ onSubmit, isCalculating }) =>
         <p className="text-white/70">Get personalized AI-powered health insights</p>
       </motion.div>
 
-      {/* Form */}
       <form onSubmit={handleSubmit} className="space-y-6">
         <InputField
           label="Weight (kg)"
@@ -102,19 +108,34 @@ const FitnessForm: React.FC<FitnessFormProps> = ({ onSubmit, isCalculating }) =>
           min="1"
         />
 
-        <InputField
-          label="Height (cm)"
-          type="number"
-          value={formData.height}
-          onChange={(value) => handleInputChange('height', value)}
-          error={errors.height}
-          placeholder="Enter your height"
-          step="0.1"
-          min="1"
-        />
+        {/* Height input with unit dropdown */}
+        <div className="flex items-end gap-3 relative z-[50]">
 
-        {/* Activity Level Dropdown */}
-        <div className="relative z-20">
+          <div className="flex-1">
+            <InputField
+              label="Height"
+              type="number"
+              value={formData.height}
+              onChange={(value) => handleInputChange('height', value)}
+              error={errors.height}
+              placeholder="Enter your height"
+              step="0.1"
+              min="1"
+            />
+          </div>
+          <div className="w-[120px] z 10">
+            <Dropdown
+              label="Unit"
+              options={heightUnits}
+              value={formData.heightUnit}
+              onChange={(value) => handleInputChange('heightUnit', value)}
+              isOpen={openDropdown === 'heightUnit'}
+              setIsOpen={(open) => setOpenDropdown(open ? 'heightUnit' : null)}
+            />
+          </div>
+        </div>
+
+        <div className="relative z-10">
           <Dropdown
             label="Activity Level"
             options={activityLevels}
@@ -127,8 +148,7 @@ const FitnessForm: React.FC<FitnessFormProps> = ({ onSubmit, isCalculating }) =>
           />
         </div>
 
-        {/* Language Dropdown */}
-        <div className="relative z-10">
+        <div className="relative z-0">
           <Dropdown
             label="Language"
             options={languages}
@@ -140,7 +160,6 @@ const FitnessForm: React.FC<FitnessFormProps> = ({ onSubmit, isCalculating }) =>
           />
         </div>
 
-        {/* Submit Button */}
         <motion.button
           type="submit"
           disabled={isCalculating}

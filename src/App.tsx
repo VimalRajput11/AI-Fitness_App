@@ -8,6 +8,7 @@ import { getFitnessAdvice } from './utils/gemini';
 interface FitnessData {
   weight: string;
   height: string;
+  heightUnit: string;
   activityLevel: string;
   language: string;
 }
@@ -33,10 +34,19 @@ function App() {
     document.documentElement.classList.toggle('dark', darkMode);
   }, [darkMode]);
 
+  const convertHeightToMeters = (height: number, unit: string): number => {
+    if (unit === 'cm') return height / 100;
+    if (unit === 'ft') return height * 0.3048;
+    if (unit === 'inch') return height * 0.0254;
+    return height; // fallback
+  };
+
   const calculateFitnessData = async (data: FitnessData): Promise<FitnessResult> => {
     const weight = parseFloat(data.weight);
-    const height = parseFloat(data.height) / 100;
-    const bmi = weight / (height * height);
+    const heightRaw = parseFloat(data.height);
+    const heightMeters = convertHeightToMeters(heightRaw, data.heightUnit);
+
+    const bmi = weight / (heightMeters * heightMeters);
 
     let bmiCategory = '';
     if (bmi < 18.5) bmiCategory = 'Underweight';
@@ -51,7 +61,8 @@ function App() {
       'Very Active': 1.725,
     }[data.activityLevel] || 1.2;
 
-    const bmr = 88.362 + (13.397 * weight) + (4.799 * parseFloat(data.height)) - (5.677 * 30);
+    const heightCm = heightMeters * 100;
+    const bmr = 88.362 + (13.397 * weight) + (4.799 * heightCm) - (5.677 * 30);
     const dailyCalories = Math.round(bmr * activityMultiplier);
 
     const suggestions = await getFitnessAdvice(bmi, bmiCategory, data.activityLevel, data.language);
