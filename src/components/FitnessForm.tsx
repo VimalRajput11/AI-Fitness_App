@@ -109,7 +109,7 @@ const FitnessForm: React.FC<FitnessFormProps> = ({ onSubmit, isCalculating }) =>
         />
 
         {/* Height input with unit dropdown */}
-        <div className="flex items-end gap-3 relative z-[50]">
+<div className="flex flex-col sm:flex-row gap-3 relative z-[50]">
 
           <div className="flex-1">
             <InputField
